@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>두 세계 구경하기 · Gemini 맥 앱이 Blender로 만든 장면</title>
+<meta name="description" content="Gemini 맥 앱의 코딩 에이전트가 Blender 스크립트로 만든 파스텔 마을과 시험 기간 책상을 직접 돌려 보기">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#EDECE8;font-family:Pretendard,system-ui,sans-serif;color:#111;word-break:keep-all;-webkit-font-smoothing:antialiased}
+#c{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none}
+.bar{position:fixed;left:20px;right:20px;top:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.title{pointer-events:auto;background:rgba(255,255,255,.92);border:2px solid #111;padding:12px 16px;max-width:420px}
+.title small{font-weight:700;font-size:12px;letter-spacing:.04em}
+.title h1{font-size:22px;line-height:1.25;letter-spacing:-.02em;margin:4px 0 6px}
+.title p{font-size:13.5px;color:#333;line-height:1.55}
+.title a{font-weight:700}
+.tabs{pointer-events:auto;display:flex;gap:8px}
+.tab{display:flex;flex-direction:column;width:132px;border:2px solid #111;background:#fff;cursor:pointer;padding:0;font:inherit;text-align:left}
+.tab img{width:100%;height:74px;object-fit:cover;display:block;border-bottom:2px solid #111;filter:saturate(.85)}
+.tab span{padding:6px 9px;font-weight:800;font-size:14px}
+.tab[aria-pressed=true]{background:#111;color:#fff}
+.tab[aria-pressed=true] img{filter:none}
+.dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.92);border:2px solid #111;padding:8px 10px}
+.dock button{font:700 13px Pretendard;border:1.5px solid #111;background:#fff;padding:6px 11px;cursor:pointer}
+.dock button[aria-pressed=true]{background:#111;color:#fff}
+.dock .hint{font-size:12.5px;color:#444;padding:0 6px}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#load div{background:#fff;border:2px solid #111;padding:14px 20px;font-weight:800}
+.cap{position:fixed;right:20px;bottom:76px;max-width:300px;background:rgba(255,255,255,.92);border:2px solid #111;padding:10px 13px;font-size:13px;line-height:1.55}
+.cap b{display:block;font-size:14px;margin-bottom:2px}
+@media (max-width:760px){
+ .bar{flex-direction:column;left:12px;right:12px;top:10px}
+ .title{max-width:none;padding:10px 12px}.title h1{font-size:18px}.title p{display:none}
+ .tab{width:118px}.tab img{height:56px}
+ .cap{display:none}.dock .hint{display:none}
+}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head><body>
+<canvas id="c" aria-label="3D 장면"></canvas>
+<div class="bar">
+ <div class="title"><small>내우주기 Drop #0104 · 두 세계 구경하기</small>
+  <h1>AI 에이전트가 코드로 지은 두 세계</h1>
+  <p>Gemini 맥 앱의 Antigravity에게 문장 하나씩 맡겨 Blender로 만든 장면입니다. 마음대로 돌리고 가까이 가 보세요. <a href="../">← 활용 사례로</a></p></div>
+ <div class="tabs">
+  <button class="tab" data-w="village" aria-pressed="true"><img src="village-thumb.png" alt=""><span>파스텔 마을</span></button>
+  <button class="tab" data-w="desk" aria-pressed="false"><img src="desk-thumb.png" alt=""><span>시험 기간 책상</span></button>
+ </div>
+</div>
+<div class="cap" id="cap"></div>
+<div class="dock">
+ <button id="spin" aria-pressed="true">자동 회전</button>
+ <button id="reset">처음 시점</button>
+ <span class="hint">드래그로 돌리기 · 휠·핀치로 확대 · 우클릭/두 손가락으로 이동</span>
+</div>
+<div id="load"><div>불러오는 중…</div></div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const WORLDS = {
+  village: { view:{target:[0,0.5,0.5], cam:[1.3,5.6,16.5], fov:34, min:4, max:45}, file:'village.glb', bg:0xE9EEE6, fog:[0xE9EEE6, 1.0], env:0.55, lightScale:0.0009, pointScale:0.02, hemi:[0xffffff,0xcfe3c8,0.55], exposure:0.85,
+    cap:'<b>작고 둥근 동물들이 사는 파스텔 마을</b>버섯 지붕 집 네 채, 돌길, 울타리, 찹쌀떡 체형 캐릭터 둘. 에이전트가 첫 렌더를 보고 스스로 숲과 굴뚝 연기를 더했습니다. 스크립트 2,124줄.' },
+  desk:    { view:{target:[-0.04,1.1,-0.04], cam:[7.2,6.6,7.2], fov:32, min:2.5, max:22}, file:'desk.glb', bg:0x16213A, fog:null, env:0.25, lightScale:0.0018, pointScale:0.0018, hemi:[0xc9d6ff,0x2b2f45,0.55], exposure:1.05,
+    cap:'<b>시험 기간 심리학과 학생의 책상</b>노트북 속 막대그래프, 뇌 모형, 코르크보드 시간표, 밤하늘 창문. 스탠드 불빛 하나가 방을 밝힙니다. 약 10분.' },
+};
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environment = envTex;
+
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 500);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.autoRotate = true; controls.autoRotateSpeed = 0.35;
+controls.maxPolarAngle = Math.PI * 0.49;
+
+const draco = new DRACOLoader().setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
+const loader = new GLTFLoader().setDRACOLoader(draco);
+const cache = {}; let current = null, home = null, hemi = null;
+
+function fit(obj){
+  obj.updateMatrixWorld(true);
+  const box = new THREE.Box3();
+  obj.traverse(o => { if (!o.isMesh) return; const b = new THREE.Box3().setFromObject(o), s = b.getSize(new THREE.Vector3());
+    if (Math.max(s.x, s.z) < 20) box.union(b); });
+  const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+  const r = size.length() / 2;
+  const dist = r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.78;
+  const dir = new THREE.Vector3(0.9, 0.62, 1.0).normalize();
+  camera.position.copy(center).addScaledVector(dir, dist);
+  camera.near = dist / 100; camera.far = dist * 20; camera.updateProjectionMatrix();
+  controls.target.copy(center); controls.minDistance = r * 0.15; controls.maxDistance = dist * 2.2;
+  controls.update();
+  home = { pos: camera.position.clone(), target: center.clone() };
+}
+
+function prepare(gltf, w){
+  const root = gltf.scene;
+  root.traverse(o => {
+    if (o.isMesh){ o.castShadow = true; o.receiveShadow = true;
+      const ms = Array.isArray(o.material) ? o.material : [o.material];
+      ms.forEach(m => { if (m && 'envMapIntensity' in m) m.envMapIntensity = w.env; });
+    }
+    if (o.isLight){
+      if (o.isDirectionalLight || o.isSpotLight){ o.intensity *= w.lightScale; o.castShadow = true;
+        o.shadow.mapSize.set(2048, 2048); o.shadow.bias = -0.0004; o.shadow.normalBias = 0.02; }
+      if (o.isPointLight){ o.intensity *= w.pointScale; }
+      if (o.isDirectionalLight){
+        const box = new THREE.Box3().setFromObject(root), s = box.getSize(new THREE.Vector3()).length() / 2;
+        const cam = o.shadow.camera; cam.left = cam.bottom = -s; cam.right = cam.top = s; cam.near = 0.1; cam.far = s * 6; cam.updateProjectionMatrix();
+        root.updateMatrixWorld(true);
+        const p = o.getWorldPosition(new THREE.Vector3()), t = o.target.getWorldPosition(new THREE.Vector3());
+        const d = t.sub(p).normalize();
+        o.parent.remove(o); root.add(o); o.position.copy(d.clone().multiplyScalar(-s * 1.5)); o.target.position.set(0,0,0); root.add(o.target);
+      }
+    }
+  });
+  return root;
+}
+
+async function show(name){
+  const w = WORLDS[name];
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-pressed', b.dataset.w === name));
+  document.getElementById('cap').innerHTML = w.cap;
+  if (current) scene.remove(current);
+  if (!cache[name]){
+    document.getElementById('load').style.display = 'flex';
+    const gltf = await loader.loadAsync(w.file);
+    cache[name] = prepare(gltf, w);
+    document.getElementById('load').style.display = 'none';
+  }
+  current = cache[name]; scene.add(current);
+  scene.background = new THREE.Color(w.bg);
+  scene.fog = w.fog ? new THREE.Fog(w.fog[0], 1, 1) : null;
+  if (hemi) scene.remove(hemi);
+  hemi = new THREE.HemisphereLight(...w.hemi); scene.add(hemi);
+  renderer.toneMappingExposure = w.exposure;
+  if (w.view){ camera.position.set(...w.view.cam); controls.target.set(...w.view.target); camera.fov = w.view.fov || 35; camera.near=0.05; camera.far=300; camera.updateProjectionMatrix(); controls.minDistance=w.view.min; controls.maxDistance=w.view.max; controls.update(); home={pos:camera.position.clone(), target:controls.target.clone()}; } else { camera.fov = 35; fit(current); }
+  if (scene.fog){ const d = camera.position.distanceTo(controls.target); scene.fog.near = d * 1.4; scene.fog.far = d * 4; }
+}
+
+function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => show(b.dataset.w));
+const spin = document.getElementById('spin');
+spin.onclick = () => { controls.autoRotate = !controls.autoRotate; spin.setAttribute('aria-pressed', controls.autoRotate); };
+document.getElementById('reset').onclick = () => { if (home){ camera.position.copy(home.pos); controls.target.copy(home.target); controls.update(); } };
+controls.addEventListener('start', () => { controls.autoRotate = false; spin.setAttribute('aria-pressed', false); });
+
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+show(new URLSearchParams(location.search).get('w') === 'desk' ? 'desk' : 'village');
+</script>
+</body></html>
