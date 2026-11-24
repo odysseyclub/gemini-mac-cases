@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>과제 하나, Gemini 맥 앱으로 끝까지 · 내우주기</title>
+<meta name="description" content="심리학과 과제 하나를 Gemini 맥 앱으로 처음부터 끝까지 해 본 실제 화면 기록">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--ink:#111;--sub:#555;--line:#111;--paper:#EDECE8;--card:#fff;--red:#D23A3A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:Pretendard,system-ui,sans-serif;word-break:keep-all;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px}
+header.top{border-bottom:3px solid var(--line);padding:18px 0 10px;display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--line)}
+.hero small{font-weight:700;letter-spacing:.04em;font-size:13px}
+.hero h1{font-size:clamp(34px,6vw,62px);line-height:1.12;letter-spacing:-.03em;font-weight:900;margin:14px 0 18px}
+.hero p{font-size:19px;max-width:700px;color:#222}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.btn{display:inline-block;border:2px solid var(--ink);padding:10px 18px;font-weight:800;text-decoration:none;background:var(--card)}
+.btn.dark{background:var(--ink);color:#fff}
+.map{display:grid;grid-template-columns:repeat(5,1fr);border:2px solid var(--line);margin:36px 0 0;background:var(--card)}
+.map div{padding:14px 12px;border-right:1px solid #bbb;font-size:14px}
+.map div:last-child{border-right:0}
+.map b{display:block;font-size:16px;margin-bottom:4px}
+.map span{color:var(--sub)}
+section.scene{padding:56px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:140px 1fr;column-gap:28px}
+.num{font-size:110px;font-weight:900;line-height:.85;letter-spacing:-6px}
+.time{font-weight:800;font-size:14px;margin-top:14px}
+.tag{display:inline-block;border:1.5px solid var(--ink);padding:2px 9px;font-size:13px;font-weight:700;margin:0 6px 10px 0;background:var(--card)}
+.scene h2{font-size:30px;line-height:1.25;letter-spacing:-.02em;margin-bottom:10px}
+.scene .lead{font-size:17px;color:#222;margin-bottom:18px}
+.media{background:var(--card);border:2px solid var(--line);margin:8px 0 14px}
+.media video,.media img{display:block;width:100%;height:auto}
+.cap{font-size:13px;color:var(--sub);margin-bottom:16px}
+.prompt{background:#fff;border-left:5px solid var(--ink);padding:12px 16px;font-size:15px;margin:6px 0 14px;position:relative}
+.prompt::before{content:"이렇게 물었다";display:block;font-size:12px;font-weight:800;color:var(--sub);margin-bottom:4px}
+.copy{position:absolute;top:10px;right:10px;font:700 12px Pretendard;border:1.5px solid var(--ink);background:#fff;padding:2px 8px;cursor:pointer}
+.why{font-size:16px;margin:4px 0}
+.why b{background:linear-gradient(transparent 60%,#ffe36e 60%)}
+.ng{border:2px solid var(--red);color:var(--red);padding:10px 14px;font-size:14px;margin-top:14px;background:#fff}
+.ng b{font-weight:900}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.files{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.files a{display:block;background:var(--card);border:2px solid var(--ink);padding:14px;text-decoration:none;font-weight:700}
+.files a span{display:block;font-weight:500;font-size:13px;color:var(--sub)}
+.notes li{margin:6px 0 6px 18px}
+footer{padding:30px 0 60px;font-size:13px;color:var(--sub)}
+@media (max-width:720px){section.scene{grid-template-columns:1fr}.num{font-size:72px}.map{grid-template-columns:1fr 1fr}.two,.files{grid-template-columns:1fr}}
+</style></head>
+<body>
+<div class="wrap">
+<header class="top"><span>내우주기 Drop #0104</span><span>실제 화면 · 2026.11.24</span></header>
+
+<div class="hero">
+<small>GEMINI 맥 앱 활용 사례집</small>
+<h1>과제 하나,<br>Gemini 맥 앱으로 끝까지.</h1>
+<p>웹에서 쓰던 Gemini는 「물어보는 곳」이었다면, 맥 앱은 <b>내 화면과 내 폴더 옆에서 같이 일하는 동료</b>에 가깝습니다. 심리학 연구방법론 과제 하나(수면 시간과 스트룹 효과)를 처음부터 끝까지 맥 앱으로 해 봤습니다. 아래는 전부 실제 화면입니다.</p>
+<div class="cta">
+<a class="btn dark" href="https://gemini.google/mac" target="_blank" rel="noopener">맥 앱 받기 (무료)</a>
+<a class="btn" href="#files">예시 과제 파일 받기</a>
+<a class="btn" href="files/stroop.html" target="_blank">스트룹 실험 직접 해 보기</a>
+</div>
+<div class="map">
+<div><b>⌥ Space</b><span>쓰던 앱 옆에 바로</span></div>
+<div><b>창 공유</b><span>보이는 걸 그대로 묻기</span></div>
+<div><b>작업</b><span>폴더 맡기고 다른 일</span></div>
+<div><b>Antigravity</b><span>코드로 만들어 실행까지</span></div>
+<div><b>Fn 말하기</b><span>어디서든 받아쓰기 (영어)</span></div>
+</div>
+</div>
+
+<section class="scene">
+<div><div class="num">1</div><div class="time">월요일 오후</div></div>
+<div>
+<span class="tag">창 공유</span>
+<h2>과제 안내를 받았다. 뭘 언제 해야 하지?</h2>
+<p class="lead">과제 PDF를 연 채로 Gemini에 「화면 공유 → 창 선택」. 파일을 업로드할 필요 없이 지금 보고 있는 창을 그대로 넘깁니다.</p>
+<div class="media"><video src="media/s1-checklist.mp4" controls muted playsinline preload="metadata" poster="img/s1-checklist.jpg"></video></div>
+<div class="prompt"><button class="copy">복사</button>이 과제에서 내가 해야 할 일을 마감까지 체크리스트로 정리해 줘. 배점이 큰 것부터, 날짜별로 언제 뭘 하면 좋을지도.</div>
+<p class="why">배점 40점짜리 결과 보고부터 체크리스트가 나왔고, 「해석은 AI에 맡기지 않고 조원이 직접」 같은 <b>안내문 속 유의 사항까지 챙겨 줬습니다.</b></p>
+</div>
+</section>
+
+<section class="scene">
+<div><div class="num">2</div><div class="time">화요일</div></div>
+<div>
+<span class="tag">Antigravity</span>
+<h2>실험 도구가 없다. 그럼 만들자.</h2>
+<p class="lead">앱 오른쪽 위 「Antigravity」를 열고 빈 폴더 하나를 맡겼습니다. 「스트룹 반응시간 실험 웹앱, 결과는 CSV로」라고 적자 에이전트가 파일을 만들고 스스로 끝까지 실행해 확인했습니다.</p>
+<div class="two">
+<div class="media"><img src="img/stroop-result.jpg" alt="스트룹 실험 결과 화면"></div>
+<div class="media"><a href="files/stroop.html" target="_blank" style="display:flex;align-items:center;justify-content:center;height:100%;min-height:200px;text-decoration:none;font-weight:900;font-size:22px">▶ 직접 해 보기<br><span style="font-size:13px;font-weight:500;color:#555;display:block;text-align:center">연습 4회 + 본 실험 40회 · 휴대폰도 됨</span></a></div>
+</div>
+<p class="cap">결과 화면: 일치·불일치 평균 반응시간, 스트룹 효과, 정확도, CSV 내려받기. (위 화면은 자동 테스트 실행 결과)</p>
+<p class="why">조원 단톡방에 링크 하나 보내면 <b>모두가 같은 조건으로 실험에 참여</b>할 수 있습니다.</p>
+<div class="ng"><b>✕ 주의</b> Antigravity는 고른 폴더 안의 파일을 읽고 고칩니다. 「문서」 같은 큰 폴더 말고 <b>빈 폴더를 새로 만들어</b> 그것만 고르세요.</div>
+</div>
+</section>
+
+<section class="scene">
+<div><div class="num">3</div><div class="time">목요일</div></div>
+<div>
+<span class="tag">창 공유</span>
+<h2>데이터가 모였다. APA 문장으로 써야 한다.</h2>
+<p class="lead">데이터 표를 띄워 둔 채 그대로 공유하고 상관 분석과 보고 문장을 요청했습니다.</p>
+<div class="media"><video src="media/s2-apa.mp4" controls muted playsinline preload="metadata" poster="img/s2-apa.jpg"></video></div>
+<div class="prompt"><button class="copy">복사</button>화면의 데이터로 수면 시간과 스트룹 효과의 피어슨 상관을 계산하고, 결과를 APA 7판 형식 한 문장으로 써 줘. 계산 과정은 짧게.</div>
+<p class="why">답: <b>r(28) = −.51, p = .004.</b> 저희가 따로 계산한 값(r = −.507, t = −3.11)과 같았습니다. 계산 과정을 같이 받아 두면 검산이 쉽습니다.</p>
+<div class="ng"><b>✕ 주의</b> 숫자는 꼭 한 번 직접 검산하세요. 이번에는 맞았지만, 화면에서 읽은 표는 잘못 읽을 수도 있습니다.</div>
+</div>
+</section>
+
+<section class="scene">
+<div><div class="num">4</div><div class="time">목요일 밤</div></div>
+<div>
+<span class="tag">창 공유</span>
+<h2>그래프를 슬라이드에 넣기 전에, 이 그림이 말하는 것과 말하지 않는 것.</h2>
+<div class="media"><video src="media/s3-graph.mp4" controls muted playsinline preload="metadata" poster="img/s3-graph.jpg"></video></div>
+<div class="prompt"><button class="copy">복사</button>이 그래프를 발표 슬라이드에 넣을 거야. 그래프가 보여 주는 것과 보여 주지 않는 것을 각각 두 줄로 설명해 줘.</div>
+<p class="why">「보여 주지 않는 것」으로 <b>인과관계, 피로·카페인 같은 교란 변수, 예시 데이터의 일반화 한계</b>를 짚었습니다. 발표 질문에 미리 대비할 수 있는 지점입니다.</p>
+</div>
+</section>
+
+<section class="scene">
+<div><div class="num">5</div><div class="time">금요일</div></div>
+<div>
+<span class="tag">작업</span><span class="tag">폴더 연결</span>
+<h2>발표 대본은 맡겨 두고, 나는 다른 일.</h2>
+<p class="lead">입력창 아래를 「작업」으로 바꾸고 과제 폴더를 연결했습니다. 과제 안내, 5·6주차 강의 자료, 그래프를 읽고 대본 파일을 폴더에 저장해 달라고 했습니다. 약 2분 뒤 6장 분량 5분 대본이 폴더에 생겼습니다.</p>
+<div class="media"><video src="media/s4-task.mp4" controls muted playsinline preload="metadata" poster="img/s4-task.jpg"></video></div>
+<div class="prompt"><button class="copy">복사</button>연결한 폴더의 과제 안내 PDF와 강의자료 폴더의 PDF, 그래프 이미지를 읽고, 5분 발표 대본 초안을 만들어 「발표대본_초안.md」로 폴더에 저장해 줘. 슬라이드 6장 기준으로 장마다 제목, 말할 내용 3~4문장, 예상 시간. 「상관은 인과가 아니다」를 한계 슬라이드에 꼭 넣어 줘.</div>
+<p class="why">강의 자료에 있던 <b>「색각 이상 참가자 사전 확인」, 「오답 시행 제외」까지 방법 슬라이드에 들어갔습니다.</b> 결과물: <a href="files/발표대본_초안.md" target="_blank">발표대본_초안.md</a></p>
+<div class="ng"><b>✕ 주의</b> 작업에 연결한 폴더의 파일은 최대 24시간 백업된다고 앱이 안내합니다. 개인 정보나 남의 자료가 든 폴더는 연결하지 마세요. 저장 위치에 따라 iCloud Drive 전체 접근을 묻기도 하는데, 거부해도 이번 작업은 됐습니다.</div>
+</div>
+</section>
+
+<section class="scene">
+<div><div class="num">+</div><div class="time">쉬는 시간</div></div>
+<div>
+<span class="tag">Antigravity</span><span class="tag">Blender</span>
+<h2>과제 말고, 이런 것도 됩니다.</h2>
+<p class="lead">같은 Antigravity에게 Blender 장면을 만드는 스크립트를 맡겼습니다. 에이전트가 렌더를 직접 보고 어색한 곳을 고쳐 다시 렌더하고, 회전 영상까지 만들었습니다(마을 약 20분, 책상 약 10분).</p>
+<div class="two">
+<div class="media"><video src="media/village.mp4" controls muted loop playsinline preload="metadata" poster="img/village.png"></video></div>
+<div class="media"><video src="media/desk.mp4" controls muted loop playsinline preload="metadata" poster="img/desk.png"></video></div>
+</div>
+<p class="cap">왼쪽: 「작고 둥근 동물들이 사는 파스텔 마을」 · 오른쪽: 「시험 기간 심리학과 학생의 책상」. 캐릭터와 소품은 모두 오리지널로 주문.</p>
+</div>
+</section>
+
+<section class="scene" id="files">
+<div><div class="num">↓</div></div>
+<div>
+<h2>직접 따라 해 보기</h2>
+<p class="lead">아래 파일을 받아 「심리학과-과제」 폴더에 넣고, 위의 질문들을 그대로 써 보세요. 모든 데이터는 가상 예시입니다.</p>
+<div class="files">
+<a href="files/과제2_안내.pdf" download>과제2_안내.pdf<span>예시 과제 안내문</span></a>
+<a href="files/예시데이터_수면과스트룹.csv" download>예시데이터.csv<span>가상 참가자 30명</span></a>
+<a href="files/그림1_수면과스트룹.png" download>그림1.png<span>산점도</span></a>
+<a href="files/발표대본_초안.md" download>발표대본_초안.md<span>작업이 만든 결과물</span></a>
+<a href="files/stroop.html" download>stroop.html<span>Antigravity가 만든 실험 앱</span></a>
+<a href="https://gemini.google/mac" target="_blank" rel="noopener">Gemini 맥 앱<span>gemini.google/mac</span></a>
+</div>
+</div>
+</section>
+
+<section class="scene">
+<div><div class="num">!</div></div>
+<div>
+<h2>알고 쓰기</h2>
+<ul class="notes">
+<li>macOS 15 이상, 개인 Google 계정 기준. 작업(Tasks)은 11월 17일부터 한국도 무료입니다.</li>
+<li>공식 영상의 <b>computer use</b>(Gemini가 내 앱을 직접 클릭)는 아직 미국·영어·유료 요금제 전용이라 한국 계정에선 보이지 않았습니다.</li>
+<li>Fn 길게 눌러 말하기는 영어만 지원합니다.</li>
+<li>창 공유는 화면 기록·손쉬운 사용 권한이 필요합니다. 공유하기 전에 그 창에 무엇이 보이는지 한 번 확인하세요.</li>
+<li>「Gemini 앱 활동」이 켜진 개인 계정은 대화와 공유한 화면이 서비스 개선과 사람 검토에 쓰일 수 있다고 안내됩니다. 설정에서 확인할 수 있습니다.</li>
+<li>해석과 결론은 내가 씁니다. 과제에 AI를 썼다면 어디에 어떻게 썼는지 밝히세요.</li>
+</ul>
+</div>
+</section>
+
+<footer>기준: 2026년 11월 24일 · Gemini 맥 앱 1.147 · Apple Silicon 맥 · 개인 계정(Pro). 예시 데이터와 과제는 시연을 위해 만든 가상 자료입니다.<br>內宇宙記 · 심리학과생 T들의 안전한 놀이터</footer>
+</div>
+<script>document.querySelectorAll('.copy').forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(b.parentElement.childNodes[1].textContent.trim());b.textContent='복사됨';setTimeout(()=>b.textContent='복사',1200)})</script>
+</body></html>

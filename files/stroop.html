@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>스트룹(Stroop) 반응시간 실험</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent: #1e293b;
+      --accent-hover: #0f172a;
+
+      --color-red: #d92d20;
+      --color-blue: #1d4ed8;
+      --color-green: #15803d;
+      --color-yellow: #ca8a04;
+      --swatch-yellow: #eab308;
+
+      --success: #15803d;
+      --error: #b91c1c;
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 20px 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typography */
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(1.75rem, 4.5vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: clamp(1.4rem, 3.8vw, 1.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    /* Card & Instructions */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin: 20px 0;
+    }
+
+    .instruction-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+    }
+
+    .instruction-list li {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .instruction-list li::before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .instruction-list strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .example-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      flex-wrap: wrap;
+    }
+
+    .example-stimulus {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--color-blue);
+      letter-spacing: 0.04em;
+    }
+
+    .example-desc {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .key-legend {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.red { background: var(--color-red); }
+    .dot.blue { background: var(--color-blue); }
+    .dot.green { background: var(--color-green); }
+    .dot.yellow { background: var(--swatch-yellow); }
+
+    kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 6px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .field input {
+      width: 100%;
+      padding: 13px 14px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.08);
+    }
+
+    .error-msg {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: var(--error);
+      min-height: 1.4em;
+    }
+
+    /* Primary & Secondary Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px 22px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.06s ease, border-color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface);
+    }
+
+    /* Experiment Screen */
+    .exp-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: min(86dvh, 640px);
+      justify-content: space-between;
+    }
+
+    .exp-header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .exp-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.92rem;
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .phase-badge.main {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .trial-counter {
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 5px;
+      background: var(--surface);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.2s ease;
+    }
+
+    .stimulus-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 240px;
+      padding: 24px 0;
+      user-select: none;
+    }
+
+    .fixation {
+      font-size: clamp(3rem, 9vw, 4.25rem);
+      font-weight: 400;
+      color: #64748b;
+      line-height: 1;
+    }
+
+    .stimulus-word {
+      font-size: clamp(3.5rem, 13vw, 5.75rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+
+    .feedback-text {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .feedback-text.correct {
+      color: var(--success);
+    }
+
+    .feedback-text.wrong {
+      color: var(--error);
+    }
+
+    .response-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .color-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .color-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 76px;
+      padding: 12px 8px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.06s ease, background-color 0.12s ease, border-color 0.12s ease;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .color-btn:hover {
+      background: var(--surface);
+    }
+
+    .color-btn:active,
+    .color-btn.pressed {
+      transform: scale(0.97);
+    }
+
+    .color-btn .swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+    }
+
+    .color-btn .btn-label {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .color-btn .btn-key {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .color-btn[data-color="red"] { border-color: rgba(217, 45, 32, 0.35); }
+    .color-btn[data-color="red"] .swatch { background: var(--color-red); }
+    .color-btn[data-color="red"]:hover, .color-btn[data-color="red"].pressed {
+      background: rgba(217, 45, 32, 0.06);
+      border-color: var(--color-red);
+    }
+
+    .color-btn[data-color="blue"] { border-color: rgba(29, 78, 216, 0.35); }
+    .color-btn[data-color="blue"] .swatch { background: var(--color-blue); }
+    .color-btn[data-color="blue"]:hover, .color-btn[data-color="blue"].pressed {
+      background: rgba(29, 78, 216, 0.06);
+      border-color: var(--color-blue);
+    }
+
+    .color-btn[data-color="green"] { border-color: rgba(21, 128, 61, 0.35); }
+    .color-btn[data-color="green"] .swatch { background: var(--color-green); }
+    .color-btn[data-color="green"]:hover, .color-btn[data-color="green"].pressed {
+      background: rgba(21, 128, 61, 0.06);
+      border-color: var(--color-green);
+    }
+
+    .color-btn[data-color="yellow"] { border-color: rgba(202, 138, 4, 0.45); }
+    .color-btn[data-color="yellow"] .swatch { background: var(--swatch-yellow); }
+    .color-btn[data-color="yellow"]:hover, .color-btn[data-color="yellow"].pressed {
+      background: rgba(234, 179, 8, 0.1);
+      border-color: var(--color-yellow);
+    }
+
+    .exp-hint {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Ready Transition Screen */
+    .ready-box {
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .ready-score {
+      display: inline-block;
+      margin: 10px 0 18px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Results Screen */
+    .participant-summary {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+
+    .metric-card.highlight {
+      background: #f8fafc;
+      border-color: var(--border-strong);
+    }
+
+    .metric-label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: clamp(1.5rem, 4.5vw, 2rem);
+      font-weight: 800;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    .metric-sub {
+      margin-top: 4px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 76px 1fr 78px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .bar-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .bar-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .bar-track {
+      height: 14px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .bar-fill.congruent { background: #64748b; }
+    .bar-fill.incongruent { background: #0f172a; }
+
+    .bar-num {
+      text-align: right;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+
+    .footnote {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 560px) {
+      body {
+        padding: 16px 14px;
+        align-items: flex-start;
+      }
+
+      .form-grid,
+      .metrics-grid,
+      .actions-row {
+        grid-template-columns: 1fr;
+      }
+
+      .key-legend {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .color-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .color-btn {
+        min-height: 78px;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .color-btn .btn-key {
+        display: none;
+      }
+
+      .exp-wrapper {
+        min-height: calc(100dvh - 32px);
+      }
+
+      .bar-row {
+        grid-template-columns: 64px 1fr 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <!-- 1. Start Screen -->
+    <section id="screen-start" class="screen active" aria-label="실험 안내 및 정보 입력">
+      <span class="eyebrow">심리학과 연구방법론 실험</span>
+      <h1>스트룹(Stroop) 반응시간 실험</h1>
+      <p>단어의 뜻이 아니라 <strong>글자의 색깔</strong>을 보고 최대한 빠르고 정확하게 응답하는 인지 과제입니다.</p>
+
+      <div class="card">
+        <ul class="instruction-list">
+          <li>화면 중앙에 색 이름 단어(<strong>빨강·파랑·초록·노랑</strong>)가 무작위 글자 색으로 제시됩니다.</li>
+          <li>단어의 의미는 무시하고, <strong>글자 색에 해당하는 키(R·B·G·Y)</strong> 또는 화면 하단의 4색 버튼을 눌러 주세요.</li>
+          <li><strong>연습 4회</strong> 후 <strong>본 실험 40회</strong>(일치 20회, 불일치 20회, 무작위 순서)가 진행됩니다.</li>
+          <li>각 시행 사이에는 고정점(<strong>+</strong>)이 0.5초(500ms) 동안 표시됩니다.</li>
+        </ul>
+
+        <div class="example-box" aria-label="과제 예시">
+          <div class="example-stimulus">빨강</div>
+          <div class="example-desc">
+            예시: 「빨강」이라는 단어가 <strong>파란색</strong> 글자로 표시되면<br />
+            정답은 <strong>파랑 (B)</strong>입니다.
+          </div>
+        </div>
+
+        <div class="key-legend" aria-label="응답 키 안내">
+          <div class="legend-item"><span class="dot red"></span>빨강 <kbd>R</kbd></div>
+          <div class="legend-item"><span class="dot blue"></span>파랑 <kbd>B</kbd></div>
+          <div class="legend-item"><span class="dot green"></span>초록 <kbd>G</kbd></div>
+          <div class="legend-item"><span class="dot yellow"></span>노랑 <kbd>Y</kbd></div>
+        </div>
+      </div>
+
+      <form id="start-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="participant-id">참가자 번호</label>
+            <input
+              id="participant-id"
+              name="participantId"
+              type="text"
+              placeholder="예: P01"
+              autocomplete="off"
+              required
+            />
+          </div>
+          <div class="field">
+            <label for="sleep-hours">어젯밤 수면 시간 (시간)</label>
+            <input
+              id="sleep-hours"
+              name="sleepHours"
+              type="number"
+              min="0"
+              max="24"
+              step="0.5"
+              inputmode="decimal"
+              placeholder="예: 7 또는 6.5"
+              required
+            />
+          </div>
+        </div>
+
+        <div id="form-error" class="error-msg" role="alert" aria-live="polite"></div>
+
+        <button id="start-btn" type="submit" class="btn btn-primary">실험 시작하기</button>
+      </form>
+    </section>
+
+    <!-- 2. Experiment Screen -->
+    <section id="screen-experiment" class="screen" aria-label="실험 진행 화면">
+      <div class="exp-wrapper">
+        <div class="exp-header">
+          <div class="exp-meta">
+            <span id="phase-badge" class="phase-badge">연습 시행</span>
+            <span id="trial-counter" class="trial-counter">1 / 4</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div id="stimulus-stage" class="stimulus-stage" aria-live="off">
+          <div class="fixation">+</div>
+        </div>
+
+        <div class="response-section">
+          <div class="color-buttons" role="group" aria-label="글자 색 선택 버튼">
+            <button type="button" class="color-btn" data-color="red" data-key="R" aria-label="빨강 (R)">
+              <span class="swatch" aria-hidden="true"></span>
+              <span class="btn-label">빨강</span>
+              <span class="btn-key">R 키</span>
+            </button>
+            <button type="button" class="color-btn" data-color="blue" data-key="B" aria-label="파랑 (B)">
+              <span class="swatch" aria-hidden="true"></span>
+              <span class="btn-label">파랑</span>
+              <span class="btn-key">B 키</span>
+            </button>
+            <button type="button" class="color-btn" data-color="green" data-key="G" aria-label="초록 (G)">
+              <span class="swatch" aria-hidden="true"></span>
+              <span class="btn-label">초록</span>
+              <span class="btn-key">G 키</span>
+            </button>
+            <button type="button" class="color-btn" data-color="yellow" data-key="Y" aria-label="노랑 (Y)">
+              <span class="swatch" aria-hidden="true"></span>
+              <span class="btn-label">노랑</span>
+              <span class="btn-key">Y 키</span>
+            </button>
+          </div>
+          <p class="exp-hint">단어의 뜻이 아니라 <strong>글자 색</strong>에 맞는 키(R·B·G·Y) 또는 버튼을 눌러 주세요.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Practice Complete / Main Ready Screen -->
+    <section id="screen-ready" class="screen" aria-label="본 실험 시작 안내">
+      <div class="ready-box">
+        <span class="eyebrow">연습 종료</span>
+        <h2>본 실험을 시작할 준비가 되었습니다</h2>
+        <div id="practice-summary" class="ready-score">연습 정확도: 4 / 4</div>
+        <div class="card" style="text-align: left;">
+          <ul class="instruction-list">
+            <li>이제 <strong>본 실험 40회</strong>(일치 20회, 불일치 20회)가 진행됩니다.</li>
+            <li>본 실험에서는 정오답 안내 없이 시행 사이에 고정점(<strong>+</strong>)이 500ms 동안 표시됩니다.</li>
+            <li>손가락을 키보드(<strong>R · B · G · Y</strong>) 또는 버튼 위에 두고 최대한 빠르고 정확하게 응답해 주세요.</li>
+          </ul>
+        </div>
+        <button id="start-main-btn" type="button" class="btn btn-primary">본 실험 시작하기</button>
+      </div>
+    </section>
+
+    <!-- 4. Results Screen -->
+    <section id="screen-results" class="screen" aria-label="실험 결과">
+      <span class="eyebrow">실험 완료</span>
+      <h2>스트룹 실험 결과</h2>
+      <p id="participant-summary" class="participant-summary"></p>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">일치 평균 반응시간</div>
+          <div id="res-congruent-rt" class="metric-value">-</div>
+          <div id="res-congruent-sub" class="metric-sub"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">불일치 평균 반응시간</div>
+          <div id="res-incongruent-rt" class="metric-value">-</div>
+          <div id="res-incongruent-sub" class="metric-sub"></div>
+        </div>
+        <div class="metric-card highlight">
+          <div class="metric-label">스트룹 효과 (불일치 − 일치)</div>
+          <div id="res-stroop-effect" class="metric-value">-</div>
+          <div class="metric-sub">양수일수록 간섭 효과가 큼</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">전체 정확도</div>
+          <div id="res-accuracy" class="metric-value">-</div>
+          <div id="res-accuracy-sub" class="metric-sub"></div>
+        </div>
+      </div>
+
+      <div class="chart-card" aria-label="조건별 평균 반응시간 비교">
+        <div class="chart-title">조건별 평균 반응시간 비교 (정답 시행 기준)</div>
+        <div class="bar-row">
+          <span class="bar-label">일치</span>
+          <div class="bar-track"><div id="bar-congruent" class="bar-fill congruent" style="width: 0%;"></div></div>
+          <span id="bar-congruent-label" class="bar-num">-</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">불일치</span>
+          <div class="bar-track"><div id="bar-incongruent" class="bar-fill incongruent" style="width: 0%;"></div></div>
+          <span id="bar-incongruent-label" class="bar-num">-</span>
+        </div>
+      </div>
+
+      <p class="footnote">
+        * 평균 반응시간과 스트룹 효과는 본 실험 40회 중 정답 시행을 기준으로 산출되었습니다.
+        CSV 파일에는 연습 및 본 실험의 모든 시행 기록이 포함됩니다.
+      </p>
+
+      <div class="actions-row">
+        <button id="download-csv-btn" type="button" class="btn btn-primary">CSV 내려받기</button>
+        <button id="restart-btn" type="button" class="btn btn-secondary">새 참가자로 다시 시작</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const COLORS = [
+        { id: 'red', label: '빨강', key: 'R', code: 'KeyR', hex: '#d92d20' },
+        { id: 'blue', label: '파랑', key: 'B', code: 'KeyB', hex: '#1d4ed8' },
+        { id: 'green', label: '초록', key: 'G', code: 'KeyG', hex: '#15803d' },
+        { id: 'yellow', label: '노랑', key: 'Y', code: 'KeyY', hex: '#ca8a04' }
+      ];
+
+      const COLOR_BY_ID = Object.fromEntries(COLORS.map(c => [c.id, c]));
+      const COLOR_BY_KEY = Object.fromEntries(COLORS.map(c => [c.key, c]));
+      const COLOR_BY_CODE = Object.fromEntries(COLORS.map(c => [c.code, c]));
+
+      const CONFIG = {
+        fixationMs: 500,
+        practiceFeedbackMs: 450,
+        practiceTrials: 4,
+        congruentTrials: 20,
+        incongruentTrials: 20
+      };
+
+      const state = {
+        screen: 'start',       // 'start' | 'experiment' | 'ready' | 'results'
+        phase: 'practice',     // 'practice' | 'main'
+        stage: 'idle',         // 'idle' | 'fixation' | 'stimulus' | 'feedback'
+        participantId: '',
+        sleepHours: '',
+        trials: [],
+        trialIndex: 0,
+        stimulusStartTime: 0,
+        timerId: null,
+        records: []
+      };
+
+      // DOM elements
+      const screens = {
+        start: document.getElementById('screen-start'),
+        experiment: document.getElementById('screen-experiment'),
+        ready: document.getElementById('screen-ready'),
+        results: document.getElementById('screen-results')
+      };
+
+      const startForm = document.getElementById('start-form');
+      const participantInput = document.getElementById('participant-id');
+      const sleepInput = document.getElementById('sleep-hours');
+      const formError = document.getElementById('form-error');
+
+      const phaseBadge = document.getElementById('phase-badge');
+      const trialCounter = document.getElementById('trial-counter');
+      const progressFill = document.getElementById('progress-fill');
+      const stimulusStage = document.getElementById('stimulus-stage');
+      const colorButtons = Array.from(document.querySelectorAll('.color-btn'));
+
+      const practiceSummaryEl = document.getElementById('practice-summary');
+      const startMainBtn = document.getElementById('start-main-btn');
+
+      const participantSummaryEl = document.getElementById('participant-summary');
+      const resCongruentRt = document.getElementById('res-congruent-rt');
+      const resCongruentSub = document.getElementById('res-congruent-sub');
+      const resIncongruentRt = document.getElementById('res-incongruent-rt');
+      const resIncongruentSub = document.getElementById('res-incongruent-sub');
+      const resStroopEffect = document.getElementById('res-stroop-effect');
+      const resAccuracy = document.getElementById('res-accuracy');
+      const resAccuracySub = document.getElementById('res-accuracy-sub');
+      const barCongruent = document.getElementById('bar-congruent');
+      const barIncongruent = document.getElementById('bar-incongruent');
+      const barCongruentLabel = document.getElementById('bar-congruent-label');
+      const barIncongruentLabel = document.getElementById('bar-incongruent-label');
+      const downloadCsvBtn = document.getElementById('download-csv-btn');
+      const restartBtn = document.getElementById('restart-btn');
+
+      function shuffle(array) {
+        const arr = array.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function generatePracticeTrials() {
+        // 4 practice trials: 2 congruent + 2 incongruent, covering all 4 ink colors once
+        const shuffledColors = shuffle(COLORS);
+        const trials = [];
+
+        // 2 congruent
+        for (let i = 0; i < 2; i++) {
+          const ink = shuffledColors[i];
+          trials.push({
+            condition: 'congruent',
+            word: ink,
+            ink: ink
+          });
+        }
+
+        // 2 incongruent
+        for (let i = 2; i < 4; i++) {
+          const ink = shuffledColors[i];
+          const otherWords = COLORS.filter(c => c.id !== ink.id);
+          const word = otherWords[Math.floor(Math.random() * otherWords.length)];
+          trials.push({
+            condition: 'incongruent',
+            word: word,
+            ink: ink
+          });
+        }
+
+        return shuffle(trials);
+      }
+
+      function generateMainTrials() {
+        const trials = [];
+
+        // 20 congruent trials: 5 per color (4 * 5 = 20)
+        for (const color of COLORS) {
+          for (let i = 0; i < 5; i++) {
+            trials.push({
+              condition: 'congruent',
+              word: color,
+              ink: color
+            });
+          }
+        }
+
+        // 20 incongruent trials: balanced so each ink color and each word appears 5 times
+        // 12 unique incongruent pairs (3 per color) + 8 pairs from 2 random shifts (2 per color)
+        for (let i = 0; i < COLORS.length; i++) {
+          for (let shift = 1; shift <= 3; shift++) {
+            trials.push({
+              condition: 'incongruent',
+              word: COLORS[(i + shift) % COLORS.length],
+              ink: COLORS[i]
+            });
+          }
+        }
+
+        const extraShifts = shuffle([1, 2, 3]).slice(0, 2);
+        for (const shift of extraShifts) {
+          for (let i = 0; i < COLORS.length; i++) {
+            trials.push({
+              condition: 'incongruent',
+              word: COLORS[(i + shift) % COLORS.length],
+              ink: COLORS[i]
+            });
+          }
+        }
+
+        return shuffle(trials);
+      }
+
+      function showScreen(name) {
+        state.screen = name;
+        Object.entries(screens).forEach(([key, el]) => {
+          el.classList.toggle('active', key === name);
+        });
+      }
+
+      function clearPendingTimer() {
+        if (state.timerId !== null) {
+          clearTimeout(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function updateProgress() {
+        const total = state.trials.length;
+        const current = Math.min(state.trialIndex + 1, total);
+        phaseBadge.textContent = state.phase === 'practice' ? '연습 시행' : '본 실험';
+        phaseBadge.classList.toggle('main', state.phase === 'main');
+        trialCounter.textContent = `${current} / ${total}`;
+        progressFill.style.width = `${(state.trialIndex / total) * 100}%`;
+      }
+
+      function startPhase(phase) {
+        clearPendingTimer();
+        state.phase = phase;
+        state.trials = phase === 'practice' ? generatePracticeTrials() : generateMainTrials();
+        state.trialIndex = 0;
+        showScreen('experiment');
+        runNextTrial();
+      }
+
+      function runNextTrial() {
+        if (state.trialIndex >= state.trials.length) {
+          progressFill.style.width = '100%';
+          state.stage = 'idle';
+          if (state.phase === 'practice') {
+            showReadyScreen();
+          } else {
+            showResultsScreen();
+          }
+          return;
+        }
+
+        updateProgress();
+        state.stage = 'fixation';
+        stimulusStage.innerHTML = '<div class="fixation" aria-label="고정점">+</div>';
+
+        state.timerId = setTimeout(() => {
+          state.timerId = null;
+          presentStimulus();
+        }, CONFIG.fixationMs);
+      }
+
+      function presentStimulus() {
+        const trial = state.trials[state.trialIndex];
+        const wordEl = document.createElement('div');
+        wordEl.className = 'stimulus-word';
+        wordEl.textContent = trial.word.label;
+        wordEl.style.color = trial.ink.hex;
+
+        stimulusStage.innerHTML = '';
+        stimulusStage.appendChild(wordEl);
+
+        state.stage = 'stimulus';
+        state.stimulusStartTime = performance.now();
+      }
+
+      function flashButton(colorId) {
+        const btn = colorButtons.find(b => b.dataset.color === colorId);
+        if (!btn) return;
+        btn.classList.add('pressed');
+        setTimeout(() => btn.classList.remove('pressed'), 120);
+      }
+
+      function handleResponse(selectedColor, inputMethod) {
+        if (state.screen !== 'experiment' || state.stage !== 'stimulus') {
+          return;
+        }
+
+        const rtMs = Math.max(0, Math.round(performance.now() - state.stimulusStartTime));
+        const trial = state.trials[state.trialIndex];
+        const isCorrect = selectedColor.id === trial.ink.id;
+
+        state.stage = 'idle';
+        flashButton(selectedColor.id);
+
+        state.records.push({
+          participant_id: state.participantId,
+          sleep_hours: state.sleepHours,
+          phase: state.phase,
+          trial_number: state.trialIndex + 1,
+          condition: trial.condition,
+          condition_ko: trial.condition === 'congruent' ? '일치' : '불일치',
+          word: trial.word.label,
+          ink_color: trial.ink.label,
+          correct_key: trial.ink.key,
+          response_key: selectedColor.key,
+          response_color: selectedColor.label,
+          input_method: inputMethod,
+          is_correct: isCorrect ? 1 : 0,
+          rt_ms: rtMs,
+          timestamp: new Date().toISOString()
+        });
+
+        state.trialIndex += 1;
+
+        if (state.phase === 'practice') {
+          state.stage = 'feedback';
+          const feedbackEl = document.createElement('div');
+          feedbackEl.className = `feedback-text ${isCorrect ? 'correct' : 'wrong'}`;
+          feedbackEl.textContent = isCorrect
+            ? '정답입니다'
+            : `오답입니다 (정답: ${trial.ink.label} · ${trial.ink.key})`;
+          stimulusStage.innerHTML = '';
+          stimulusStage.appendChild(feedbackEl);
+
+          state.timerId = setTimeout(() => {
+            state.timerId = null;
+            runNextTrial();
+          }, CONFIG.practiceFeedbackMs);
+        } else {
+          runNextTrial();
+        }
+      }
+
+      function showReadyScreen() {
+        const practiceRecs = state.records.filter(r => r.phase === 'practice');
+        const correctCount = practiceRecs.filter(r => r.is_correct === 1).length;
+        practiceSummaryEl.textContent = `연습 정확도: ${correctCount} / ${practiceRecs.length}`;
+        showScreen('ready');
+        startMainBtn.focus();
+      }
+
+      function computeMean(values) {
+        if (!values.length) return null;
+        const sum = values.reduce((acc, v) => acc + v, 0);
+        return sum / values.length;
+      }
+
+      function showResultsScreen() {
+        const mainRecs = state.records.filter(r => r.phase === 'main');
+        const congruentRecs = mainRecs.filter(r => r.condition === 'congruent');
+        const incongruentRecs = mainRecs.filter(r => r.condition === 'incongruent');
+
+        const congruentCorrect = congruentRecs.filter(r => r.is_correct === 1);
+        const incongruentCorrect = incongruentRecs.filter(r => r.is_correct === 1);
+        const totalCorrect = mainRecs.filter(r => r.is_correct === 1).length;
+
+        const meanCongruent = computeMean(congruentCorrect.map(r => r.rt_ms));
+        const meanIncongruent = computeMean(incongruentCorrect.map(r => r.rt_ms));
+        const stroopEffect =
+          meanCongruent !== null && meanIncongruent !== null
+            ? meanIncongruent - meanCongruent
+            : null;
+        const accuracy = mainRecs.length ? (totalCorrect / mainRecs.length) * 100 : 0;
+
+        participantSummaryEl.textContent =
+          `참가자 번호: ${state.participantId} · 어젯밤 수면 시간: ${state.sleepHours}시간`;
+
+        resCongruentRt.textContent =
+          meanCongruent !== null ? `${Math.round(meanCongruent)} ms` : 'N/A';
+        resCongruentSub.textContent =
+          `정답 ${congruentCorrect.length} / ${congruentRecs.length}회`;
+
+        resIncongruentRt.textContent =
+          meanIncongruent !== null ? `${Math.round(meanIncongruent)} ms` : 'N/A';
+        resIncongruentSub.textContent =
+          `정답 ${incongruentCorrect.length} / ${incongruentRecs.length}회`;
+
+        if (stroopEffect !== null) {
+          const rounded = Math.round(stroopEffect);
+          resStroopEffect.textContent = `${rounded >= 0 ? '+' : ''}${rounded} ms`;
+        } else {
+          resStroopEffect.textContent = 'N/A';
+        }
+
+        resAccuracy.textContent = `${accuracy.toFixed(1)}%`;
+        resAccuracySub.textContent = `${totalCorrect} / ${mainRecs.length}회 정답`;
+
+        // Bar chart comparison
+        const maxRt = Math.max(meanCongruent || 0, meanIncongruent || 0, 1);
+        barCongruent.style.width =
+          meanCongruent !== null ? `${Math.max(6, (meanCongruent / maxRt) * 100)}%` : '0%';
+        barIncongruent.style.width =
+          meanIncongruent !== null ? `${Math.max(6, (meanIncongruent / maxRt) * 100)}%` : '0%';
+        barCongruentLabel.textContent =
+          meanCongruent !== null ? `${Math.round(meanCongruent)} ms` : 'N/A';
+        barIncongruentLabel.textContent =
+          meanIncongruent !== null ? `${Math.round(meanIncongruent)} ms` : 'N/A';
+
+        showScreen('results');
+      }
+
+      function escapeCsvValue(val) {
+        const str = String(val ?? '');
+        if (/[",\r\n]/.test(str)) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      }
+
+      function downloadCsv() {
+        const headers = [
+          'participant_id',
+          'sleep_hours',
+          'phase',
+          'trial_number',
+          'condition',
+          'condition_ko',
+          'word',
+          'ink_color',
+          'correct_key',
+          'response_key',
+          'response_color',
+          'input_method',
+          'is_correct',
+          'rt_ms',
+          'timestamp'
+        ];
+
+        const lines = [headers.join(',')];
+        for (const rec of state.records) {
+          lines.push(headers.map(h => escapeCsvValue(rec[h])).join(','));
+        }
+
+        // UTF-8 BOM for proper Korean rendering in Excel
+        const csvContent = '\uFEFF' + lines.join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const safeId = state.participantId.replace(/[^a-zA-Z0-9가-힣_-]/g, '_') || 'participant';
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `stroop_${safeId}_${stamp}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function resetExperiment() {
+        clearPendingTimer();
+        state.phase = 'practice';
+        state.stage = 'idle';
+        state.trials = [];
+        state.trialIndex = 0;
+        state.records = [];
+        participantInput.value = '';
+        sleepInput.value = '';
+        formError.textContent = '';
+        showScreen('start');
+        participantInput.focus();
+      }
+
+      // Event Listeners
+      startForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pid = participantInput.value.trim();
+        const sleepRaw = sleepInput.value.trim();
+        const sleepNum = Number(sleepRaw);
+
+        if (!pid) {
+          formError.textContent = '참가자 번호를 입력해 주세요.';
+          participantInput.focus();
+          return;
+        }
+        if (sleepRaw === '' || Number.isNaN(sleepNum) || sleepNum < 0 || sleepNum > 24) {
+          formError.textContent = '어젯밤 수면 시간을 0~24 사이의 숫자로 입력해 주세요.';
+          sleepInput.focus();
+          return;
+        }
+
+        formError.textContent = '';
+        state.participantId = pid;
+        state.sleepHours = sleepNum;
+        state.records = [];
+        startPhase('practice');
+      });
+
+      startMainBtn.addEventListener('click', () => {
+        startPhase('main');
+      });
+
+      colorButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const color = COLOR_BY_ID[btn.dataset.color];
+          if (color) {
+            handleResponse(color, 'button');
+          }
+        });
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+
+        if (state.screen === 'experiment' && state.stage === 'stimulus') {
+          const color = COLOR_BY_CODE[e.code] || COLOR_BY_KEY[(e.key || '').toUpperCase()];
+          if (color) {
+            e.preventDefault();
+            handleResponse(color, 'keyboard');
+          }
+        } else if (state.screen === 'ready' && (e.code === 'Space' || e.code === 'Enter')) {
+          if (document.activeElement !== startMainBtn) {
+            e.preventDefault();
+            startPhase('main');
+          }
+        }
+      });
+
+      downloadCsvBtn.addEventListener('click', downloadCsv);
+      restartBtn.addEventListener('click', resetExperiment);
+    })();
+  </script>
+</body>
+</html>
